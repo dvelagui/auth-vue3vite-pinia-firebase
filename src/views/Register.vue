@@ -14,10 +14,11 @@ import { ref } from 'vue';
 import { useUserStore } from "../stores/users";
 import { useRouter } from "vue-router";
 
-const email = ref('');
-const password = ref('');
 const userStore = useUserStore()
 const router = useRouter();
+
+const email = ref('');
+const password = ref('');
 
 const handleSubmit = async () => {
     if (!email.value || !password.value > 6) {

@@ -1,6 +1,4 @@
-import {
-    defineStore
-} from "pinia";
+import { defineStore } from "pinia";
 import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
@@ -11,6 +9,9 @@ import {
     auth
 } from "../firebase";
 import router from "../router";
+import {
+    useDatabaseStore
+} from "./database";
 
 
 
@@ -25,17 +26,18 @@ export const useUserStore = defineStore('danyStore', {
         async registerUser(email, password) {
             this.loadingUser = true;
             try {
-                const {
-                    user
-                } = await createUserWithEmailAndPassword(auth, email, password);
-                this.userData = {
-                    email: user.email,
-                    uid: user.uid
-                }
+                    const {
+                        user
+                    } = await createUserWithEmailAndPassword(auth, email, password);
+                    console.log(user);
+                    this.userData = {
+                        email: user.email,
+                        uid: user.uid
+                    }
             } catch (error) {
                 console.log(error);
             } finally {
-            this.loadingUser = false;
+                this.loadingUser = false;
             }
         },
         async loginUser(email, password) {
@@ -55,6 +57,8 @@ export const useUserStore = defineStore('danyStore', {
             }
         },
         async logOutSesion() {
+            const databaseStore = useDatabaseStore();
+            databaseStore.$reset();
             try {
                 await signOut(auth);
                 this.userData = null;
@@ -62,7 +66,7 @@ export const useUserStore = defineStore('danyStore', {
             } catch (error) {
                 console.log(error);
             }
-        }, 
+        },
         currentUser() {
             return new Promise((resolve, reject) => {
                 const unsuscribe = onAuthStateChanged(auth, (user) => {
@@ -73,6 +77,8 @@ export const useUserStore = defineStore('danyStore', {
                         }
                     } else {
                         this.userData = null;
+                        const databaseStore = useDatabaseStore();
+                        databaseStore.$reset();
                     }
                     resolve(user)
                 }, e => reject(e))
